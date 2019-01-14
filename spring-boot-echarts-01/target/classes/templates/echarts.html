@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head >
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script th:src="@{/js/echarts.min.js}"></script>
+    <script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //1. 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+            //2.显示一段加载的过程
+            myChart.showLoading();
+            //3.横纵坐标
+            var names = [];
+            var values = [];
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: "/echarts",
+                data: {},
+                dataType: "json",
+                success: function (result) {
+                    //请求成功时执行该函数内容，result即为服务器返回的json对象
+                    if (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            names.push(result[i].sname);
+                            values.push(result[i].snum);
+                        }
+                        myChart.hideLoading();    //隐藏加载动画
+                        myChart.setOption({
+                            title: {
+                                text: 'ECharts 入门示例'
+                            },
+                            tooltip: {},
+                            legend: {
+                                data: ['数量']
+                            },
+                            xAxis: {
+                                data: names
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                // 根据名字对应到相应的系列
+                                name: '数量',
+                                type: 'bar',
+                                data: values
+
+                            }]
+                        });
+                    }
+                },
+                error: function (errorMsg) {
+                    //请求失败时执行该函数
+                    alert("图表请求数据失败!");
+                    myChart.hideLoading();
+                }
+            });
+        });
+    </script>
+
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 600px;height:400px;"></div>
+
+</body>
+</html>
